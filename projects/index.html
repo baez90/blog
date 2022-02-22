@@ -4,8 +4,8 @@
 <meta name=HandheldFriendly content="True">
 <meta name=viewport content="width=device-width,initial-scale=1">
 <meta name=referrer content="no-referrer-when-downgrade">
-<title>Goveal - 1533B4dC0.de</title>
-<meta name=description content>
+<title>Projects - 1533B4dC0.de</title>
+<meta name=description content="INetMock     INetMock started as an resource/container friendly alternative to INetSim. While working on a project we tried to reduce analysis complexity coming from &lsquo;noise&rsquo; in the network traffic recorded to a central INetSim cluster we were running. We decided to decentralize the internet simulation, put it into a container image and run directly on every host multiple times in virtual networks. Unfortunately INetSim has a relatively huge memory footprint (~1GB) which alone wouldn&rsquo;t been a showstopper but in combination with a relatively long startup time I felt having something smaller could be beneficial so I started to implement a prototype in Go.">
 <link rel=icon type=image/x-icon href=https://www.1533b4dc0.de/favicon.ico>
 <link rel=apple-touch-icon-precomposed href=https://www.1533b4dc0.de/favicon.png>
 <style>body{visibility:hidden;opacity:0}</style>
@@ -14,15 +14,13 @@
 </noscript>
 <link rel=stylesheet href=https://www.1533b4dc0.de/css/style.min.e4dd69a921886f06d1a0e2bf835aa4fdced2d03b6f83804e6ae146caac8882bb.css integrity="sha256-5N1pqSGIbwbRoOK/g1qk/c7S0Dtvg4BOauFGyqyIgrs=">
 <script src=https://www.1533b4dc0.de/js/script.min.510c781c39dbb21b4c76d85c82e2bdf4689220adbb7cd61e49e9d293e442fb42.js type=text/javascript integrity="sha256-UQx4HDnbshtMdthcguK99GiSIK27fNYeSenSk+RC+0I="></script>
-<meta property="og:title" content="Goveal">
-<meta property="og:description" content>
+<meta property="og:title" content="Projects">
+<meta property="og:description" content="INetMock     INetMock started as an resource/container friendly alternative to INetSim. While working on a project we tried to reduce analysis complexity coming from &lsquo;noise&rsquo; in the network traffic recorded to a central INetSim cluster we were running. We decided to decentralize the internet simulation, put it into a container image and run directly on every host multiple times in virtual networks. Unfortunately INetSim has a relatively huge memory footprint (~1GB) which alone wouldn&rsquo;t been a showstopper but in combination with a relatively long startup time I felt having something smaller could be beneficial so I started to implement a prototype in Go.">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://www.1533b4dc0.de/post/goveal/"><meta property="article:section" content="post">
-<meta property="article:published_time" content="2022-02-20T00:00:00+00:00">
-<meta property="article:modified_time" content="2022-02-20T00:00:00+00:00">
+<meta property="og:url" content="https://www.1533b4dc0.de/projects/"><meta property="article:section" content>
 <meta name=twitter:card content="summary">
-<meta name=twitter:title content="Goveal">
-<meta name=twitter:description content>
+<meta name=twitter:title content="Projects">
+<meta name=twitter:description content="INetMock     INetMock started as an resource/container friendly alternative to INetSim. While working on a project we tried to reduce analysis complexity coming from &lsquo;noise&rsquo; in the network traffic recorded to a central INetSim cluster we were running. We decided to decentralize the internet simulation, put it into a container image and run directly on every host multiple times in virtual networks. Unfortunately INetSim has a relatively huge memory footprint (~1GB) which alone wouldn&rsquo;t been a showstopper but in combination with a relatively long startup time I felt having something smaller could be beneficial so I started to implement a prototype in Go.">
 </head>
 <body>
 <a class=skip-main href=#main>Skip to main content</a>
@@ -61,6 +59,7 @@
 </div>
 <nav>
 <a href=https://www.1533b4dc0.de/about/ title>About</a>
+<a href=https://www.1533b4dc0.de/projects/ title>Projects</a>
 <a href=https://www.1533b4dc0.de/tags/ title>Tags</a>
 <a href=https://www.1533b4dc0.de/posts/ title>Archive</a>
 </nav>
@@ -69,25 +68,39 @@
 <article class="post h-entry">
 <div class=post-header>
 <header>
-<h1 class="p-name post-title">Goveal</h1>
+<h1 class="p-name post-title">Projects</h1>
 </header>
 </div>
 <div class="content e-content">
+<h2 id=inetmock>INetMock
+<span>
+<a href=#inetmock><svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+</a>
+</span>
+</h2><p><a href=https://gitlab.com/inetmock/inetmock>INetMock</a> started as an resource/container friendly alternative to <a href=https://www.inetsim.org/>INetSim</a>.
+While working on a project we tried to reduce analysis complexity coming from &lsquo;noise&rsquo; in the network traffic recorded to a central INetSim cluster we were running.
+We decided to decentralize the internet simulation, put it into a container image and run directly on every host multiple times in virtual networks.
+Unfortunately INetSim has a relatively huge memory footprint (~1GB) which alone wouldn&rsquo;t been a showstopper but in combination with a relatively long startup time I felt having something smaller could be beneficial so I started to implement a prototype in Go.</p>
+<p>2 years later INetMock has grown to kind of a full router (supporting DNS and DHCP) with support for faking HTTP/s (direct or proxy requests) requests.
+Furthermore it is able to record PCAP files for further analysis and it emits events for every handled request.</p>
+<p>It comes with a descriptive configuration language (embedded in a YAML configuration) to setup the behavior of all components and to define health checks/integration tests to validate your configuration.</p>
+<p>Apart from working as a router it can also be used e.g. for integration tests of HTTP APIs, DNS/DoT/DoH clients and most likely other things I haven&rsquo;t even thought about.</p>
+<h2 id=goveal>Goveal
+<span>
+<a href=#goveal><svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/></svg>
+</a>
+</span>
+</h2><p><a href=https://github.com/baez90/goveal>Goveal</a> is similar to <a href=https://github.com/webpro/reveal-md>reveal-md</a> or previously <em>GitPitch</em> but obviously in Go.
+Originally I used GitPitch but then the author decided to go with a commercial license.
+The commercial license made sense when I was working at the university but after that it didn&rsquo;t really make sense any more.
+So I decided to replace it with a small custom CLI rendering the markdown into a static HTML file and serving it as a local web server (basically).</p>
+<p>Later on I refined it more and more.
+Currently I&rsquo;m working on a rewrite which adds e.g. 1st class support for <a href=https://mermaid-js.github.io>mermaid-js</a> diagrams in slides.</p>
 </div>
 <div class=post-info>
-<div class="post-date dt-published">2022-02-20</div>
-<a class="post-hidden-url u-url" href=https://www.1533b4dc0.de/post/goveal/>https://www.1533b4dc0.de/post/goveal/</a>
+<a class="post-hidden-url u-url" href=https://www.1533b4dc0.de/projects/>https://www.1533b4dc0.de/projects/</a>
 <a href=https://www.1533b4dc0.de/ class="p-name p-author post-hidden-author h-card" rel=me>Peter Kurfer</a>
 <div class=post-taxonomies>
-<ul class=post-categories>
-<li><a href=https://www.1533b4dc0.de/categories/goveal/>goveal</a></li>
-</ul>
-<ul class=post-tags>
-<li><a href=https://www.1533b4dc0.de/tags/markdown/>#markdown</a></li>
-<li><a href=https://www.1533b4dc0.de/tags/slides/>#slides</a></li>
-<li><a href=https://www.1533b4dc0.de/tags/revealjs/>#revealjs</a></li>
-<li><a href=https://www.1533b4dc0.de/tags/goveal/>#goveal</a></li>
-</ul>
 </div>
 </div>
 </article>
@@ -97,6 +110,8 @@
 <div class=copyright>
 <p>© Peter Kurfer, 2022<br>
 Powered by <a target=_blank rel="noopener noreferrer" href=https://gohugo.io/>Hugo</a>, theme <a target=_blank rel="noopener noreferrer" href=https://github.com/mitrichius/hugo-theme-anubis>Anubis</a>.<br>
+<script src=https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js></script>
+<script>mermaid.initialize({startOnLoad:!0,securityLevel:'loose'})</script>
 </p>
 </div>
 <button class=theme-switcher>

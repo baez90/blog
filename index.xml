@@ -1,1 +1,27 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>1533B4dC0.de</title><link>https://www.1533b4dc0.de/</link><description>1533B4dC0.de</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 20 Feb 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://www.1533b4dc0.de/index.xml" rel="self" type="application/rss+xml"/><item><title>About me</title><link>https://www.1533b4dc0.de/about/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://www.1533b4dc0.de/about/</guid><description>&lt;p>Lorem ipsum dolor sit amet, et essent mediocritatem quo, choro volumus oporteat an mei. ipsum dolor sit amet, et essent mediocritatem quo,&lt;/p></description></item><item><title>Goveal</title><link>https://www.1533b4dc0.de/post/goveal/</link><pubDate>Sun, 20 Feb 2022 00:00:00 +0000</pubDate><guid>https://www.1533b4dc0.de/post/goveal/</guid><description/></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>1533B4dC0.de</title><link>https://www.1533b4dc0.de/</link><description>1533B4dC0.de</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><atom:link href="https://www.1533b4dc0.de/index.xml" rel="self" type="application/rss+xml"/><item><title>About me</title><link>https://www.1533b4dc0.de/about/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://www.1533b4dc0.de/about/</guid><description>&lt;p>My name&amp;rsquo;s Peter. I&amp;rsquo;m a passionate software developer especially interested in all kind of networking stuff but also asynchronous data processing, software architecture, testing and automatic software quality analysis and many more.&lt;/p>
+&lt;p>I&amp;rsquo;m the author of &lt;a href="https://gitlab.com/inetmock/inetmock">InetMock&lt;/a> and &lt;a href="https://github.com/baez90/goveal">Goveal&lt;/a> (more on &lt;a href="https://www.1533b4dc0.de/projects">projects&lt;/a>) but I&amp;rsquo;m also trying to contribute to other open source projects.&lt;/p></description></item><item><title>Projects</title><link>https://www.1533b4dc0.de/projects/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://www.1533b4dc0.de/projects/</guid><description>&lt;h2 id="inetmock" >INetMock
+&lt;span>
+&lt;a href="#inetmock">
+&lt;svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg">&lt;path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>&lt;path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>&lt;/svg>
+&lt;/a>
+&lt;/span>
+&lt;/h2>&lt;p>&lt;a href="https://gitlab.com/inetmock/inetmock">INetMock&lt;/a> started as an resource/container friendly alternative to &lt;a href="https://www.inetsim.org/">INetSim&lt;/a>.
+While working on a project we tried to reduce analysis complexity coming from &amp;lsquo;noise&amp;rsquo; in the network traffic recorded to a central INetSim cluster we were running.
+We decided to decentralize the internet simulation, put it into a container image and run directly on every host multiple times in virtual networks.
+Unfortunately INetSim has a relatively huge memory footprint (~1GB) which alone wouldn&amp;rsquo;t been a showstopper but in combination with a relatively long startup time I felt having something smaller could be beneficial so I started to implement a prototype in Go.&lt;/p>
+&lt;p>2 years later INetMock has grown to kind of a full router (supporting DNS and DHCP) with support for faking HTTP/s (direct or proxy requests) requests.
+Furthermore it is able to record PCAP files for further analysis and it emits events for every handled request.&lt;/p>
+&lt;p>It comes with a descriptive configuration language (embedded in a YAML configuration) to setup the behavior of all components and to define health checks/integration tests to validate your configuration.&lt;/p>
+&lt;p>Apart from working as a router it can also be used e.g. for integration tests of HTTP APIs, DNS/DoT/DoH clients and most likely other things I haven&amp;rsquo;t even thought about.&lt;/p>
+&lt;h2 id="goveal" >Goveal
+&lt;span>
+&lt;a href="#goveal">
+&lt;svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg">&lt;path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>&lt;path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>&lt;/svg>
+&lt;/a>
+&lt;/span>
+&lt;/h2>&lt;p>&lt;a href="https://github.com/baez90/goveal">Goveal&lt;/a> is similar to &lt;a href="https://github.com/webpro/reveal-md">reveal-md&lt;/a> or previously &lt;em>GitPitch&lt;/em> but obviously in Go.
+Originally I used GitPitch but then the author decided to go with a commercial license.
+The commercial license made sense when I was working at the university but after that it didn&amp;rsquo;t really make sense any more.
+So I decided to replace it with a small custom CLI rendering the markdown into a static HTML file and serving it as a local web server (basically).&lt;/p>
+&lt;p>Later on I refined it more and more.
+Currently I&amp;rsquo;m working on a rewrite which adds e.g. 1st class support for &lt;a href="https://mermaid-js.github.io">mermaid-js&lt;/a> diagrams in slides.&lt;/p></description></item></channel></rss>
