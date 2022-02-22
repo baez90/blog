@@ -1,0 +1,51 @@
+baseURL = 'http://example.org/'
+languageCode = 'en-us'
+title = '1533B4dC0.de'
+theme = "anubis"
+paginate = 10
+
+[author]
+name = "Peter Kurfer"
+
+[params]
+author = "Peter Kurfer"
+style= "auto"
+copyCodeButton = true
+rssAsSocialIcon = true
+
+[[menu.main]]
+identifier = "about"
+name = "About"
+url = "/about/"
+weight = 1
+
+[[menu.main]]
+identifier = "tags"
+name = "Tags"
+url = "/tags/"
+weight = 2
+
+[[menu.main]]
+identifier = "archive"
+name = "Archive"
+url = "/posts/"
+weight = 3
+
+[[params.social]]
+id = "github"
+name = "baez90"
+
+[[params.social]]
+id = "linkedin"
+name = "peter-s-kurfer"
+
+[[params.social]]
+id = "xing"
+url = "https://www.xing.com/profile/Sebastian_Kurfer"
+
+[taxonomies]
+category = "categories"
+tag = "tags"
+
+[markup.goldmark.renderer]
+unsafe = true
