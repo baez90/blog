@@ -1,0 +1,11 @@
+<network>
+  <name>containers</name>
+  <uuid>929b7b7d-bd82-452d-96b7-12f0cf1a4b17</uuid>
+  <bridge name='conbr0' stp='on' delay='0'/>
+  <mac address='af:af:13:ed:c6:41'/>
+  <ip address='10.10.1.42' netmask='255.255.255.0'>
+    <dhcp>
+      <range start='10.10.1.100' end='10.10.1.150'/>
+    </dhcp>
+  </ip>
+</network>
