@@ -13,6 +13,7 @@ author = "Peter Kurfer"
 style= "auto"
 copyCodeButton = true
 rssAsSocialIcon = true
+custom_css = ["css/custom.css"]
 
 [[menu.main]]
 identifier = "about"

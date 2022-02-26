@@ -1,0 +1,5 @@
+*.o
+CMakeLists.txt
+
+out/
+cmake-build-debug/
