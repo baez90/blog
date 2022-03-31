@@ -4,6 +4,8 @@ title = '1533B4dC0.de'
 theme = "anubis"
 paginate = 10
 enableEmoji = true
+disqusShortname = ""
+googleAnalytics = ""
 
 [author]
 name = "Peter Kurfer"
