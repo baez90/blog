@@ -6,7 +6,7 @@
 &lt;/a>
 &lt;/span>
 &lt;/h2>&lt;p>&lt;a href="https://gitlab.com/inetmock/inetmock">INetMock&lt;/a> started as an resource/container friendly alternative to &lt;a href="https://www.inetsim.org/">INetSim&lt;/a>.
-While working on a project we tried to reduce analysis complexity coming from &amp;lsquo;noise&amp;rsquo; in the network traffic recorded to a central INetSim cluster we were running.
+While working on a project we tried to reduce analysis complexity coming from &amp;rsquo;noise&amp;rsquo; in the network traffic recorded to a central INetSim cluster we were running.
 We decided to decentralize the internet simulation, put it into a container image and run directly on every host multiple times in virtual networks.
 Unfortunately INetSim has a relatively huge memory footprint (~1GB) which alone wouldn&amp;rsquo;t been a showstopper but in combination with a relatively long startup time I felt having something smaller could be beneficial so I started to implement a prototype in Go.&lt;/p>
 &lt;p>2 years later INetMock has grown to kind of a full router (supporting DNS and DHCP) with support for faking HTTP/s (direct or proxy requests) requests.
@@ -40,29 +40,29 @@ So if you try to implement for example your own DHCP server you might want to is
 &lt;/span>
 &lt;/h2>&lt;p>Okay now that I came around with &lt;em>some&lt;/em> arguments - if they&amp;rsquo;re convincing or not is not important - how does this work?&lt;/p>
 &lt;p>Assuming you&amp;rsquo;ve Libvirt and Podman already installed on your system without any modification and you run&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">virsh net-list
-&lt;/code>&lt;/pre>&lt;/div>&lt;p>you should have at least the &lt;code>default&lt;/code> network already.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>virsh net-list
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>you should have at least the &lt;code>default&lt;/code> network already.&lt;/p>
 &lt;p>The definition of all networks (as of every other component of libvirt) is in XML.
 &lt;code>virsh&lt;/code> comes with a &lt;code>net-dumpxml&lt;/code> command to export the configuration of a network:&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">virsh net-dumpxml default
-&lt;/code>&lt;/pre>&lt;/div>&lt;p>The output should look (more or less) like in the following snippet:&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-xml" data-lang="xml">&lt;span style="color:#f92672">&amp;lt;network&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">&amp;lt;name&amp;gt;&lt;/span>default&lt;span style="color:#f92672">&amp;lt;/name&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">&amp;lt;uuid&amp;gt;&lt;/span>8d2028ed-cc9a-4eae-9883-b59b673d560d&lt;span style="color:#f92672">&amp;lt;/uuid&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">&amp;lt;forward&lt;/span> &lt;span style="color:#a6e22e">mode=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;nat&amp;#39;&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">&amp;lt;nat&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">&amp;lt;port&lt;/span> &lt;span style="color:#a6e22e">start=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;1024&amp;#39;&lt;/span> &lt;span style="color:#a6e22e">end=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;65535&amp;#39;&lt;/span>&lt;span style="color:#f92672">/&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">&amp;lt;/nat&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">&amp;lt;/forward&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">&amp;lt;bridge&lt;/span> &lt;span style="color:#a6e22e">name=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;virbr0&amp;#39;&lt;/span> &lt;span style="color:#a6e22e">stp=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;on&amp;#39;&lt;/span> &lt;span style="color:#a6e22e">delay=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;0&amp;#39;&lt;/span>&lt;span style="color:#f92672">/&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">&amp;lt;mac&lt;/span> &lt;span style="color:#a6e22e">address=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;63:b3:d8:75:53:6b&amp;#39;&lt;/span>&lt;span style="color:#f92672">/&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">&amp;lt;ip&lt;/span> &lt;span style="color:#a6e22e">address=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;192.168.122.1&amp;#39;&lt;/span> &lt;span style="color:#a6e22e">netmask=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;255.255.255.0&amp;#39;&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">&amp;lt;dhcp&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">&amp;lt;range&lt;/span> &lt;span style="color:#a6e22e">start=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;192.168.122.2&amp;#39;&lt;/span> &lt;span style="color:#a6e22e">end=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;192.168.122.254&amp;#39;&lt;/span>&lt;span style="color:#f92672">/&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">&amp;lt;/dhcp&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">&amp;lt;/ip&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">&amp;lt;/network&amp;gt;&lt;/span>
-&lt;/code>&lt;/pre>&lt;/div>&lt;p>So we&amp;rsquo;ve a &lt;code>&amp;lt;network/&amp;gt;&lt;/code> that is defined by:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>virsh net-dumpxml default
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>The output should look (more or less) like in the following snippet:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-xml" data-lang="xml">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">&amp;lt;network&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;lt;name&amp;gt;&lt;/span>default&lt;span style="color:#f92672">&amp;lt;/name&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;lt;uuid&amp;gt;&lt;/span>8d2028ed-cc9a-4eae-9883-b59b673d560d&lt;span style="color:#f92672">&amp;lt;/uuid&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;lt;forward&lt;/span> &lt;span style="color:#a6e22e">mode=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;nat&amp;#39;&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;lt;nat&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;lt;port&lt;/span> &lt;span style="color:#a6e22e">start=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;1024&amp;#39;&lt;/span> &lt;span style="color:#a6e22e">end=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;65535&amp;#39;&lt;/span>&lt;span style="color:#f92672">/&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;lt;/nat&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;lt;/forward&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;lt;bridge&lt;/span> &lt;span style="color:#a6e22e">name=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;virbr0&amp;#39;&lt;/span> &lt;span style="color:#a6e22e">stp=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;on&amp;#39;&lt;/span> &lt;span style="color:#a6e22e">delay=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;0&amp;#39;&lt;/span>&lt;span style="color:#f92672">/&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;lt;mac&lt;/span> &lt;span style="color:#a6e22e">address=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;63:b3:d8:75:53:6b&amp;#39;&lt;/span>&lt;span style="color:#f92672">/&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;lt;ip&lt;/span> &lt;span style="color:#a6e22e">address=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;192.168.122.1&amp;#39;&lt;/span> &lt;span style="color:#a6e22e">netmask=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;255.255.255.0&amp;#39;&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;lt;dhcp&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;lt;range&lt;/span> &lt;span style="color:#a6e22e">start=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;192.168.122.2&amp;#39;&lt;/span> &lt;span style="color:#a6e22e">end=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;192.168.122.254&amp;#39;&lt;/span>&lt;span style="color:#f92672">/&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;lt;/dhcp&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;lt;/ip&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">&amp;lt;/network&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>So we&amp;rsquo;ve a &lt;code>&amp;lt;network/&amp;gt;&lt;/code> that is defined by:&lt;/p>
 &lt;ul>
 &lt;li>a &lt;code>&amp;lt;name/&amp;gt;&lt;/code>&lt;/li>
 &lt;li>a &lt;code>&amp;lt;uuid/&amp;gt;&lt;/code>&lt;/li>
@@ -78,18 +78,18 @@ So if you try to implement for example your own DHCP server you might want to is
 &lt;p>The complete reference for the XML schema can be found &lt;a href="https://libvirt.org/formatnetwork.html">here&lt;/a>.&lt;/p>
 &lt;p>Before we have a closer look how to bring Podman containers into a Libvirt network, let&amp;rsquo;s define a new &lt;code>containers&lt;/code> network.
 The following snippet contains the definition I&amp;rsquo;ll use:&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-xml" data-lang="xml">&lt;span style="color:#f92672">&amp;lt;network&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">&amp;lt;name&amp;gt;&lt;/span>containers&lt;span style="color:#f92672">&amp;lt;/name&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">&amp;lt;uuid&amp;gt;&lt;/span>929b7b7d-bd82-452d-96b7-12f0cf1a4b17&lt;span style="color:#f92672">&amp;lt;/uuid&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">&amp;lt;bridge&lt;/span> &lt;span style="color:#a6e22e">name=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;conbr0&amp;#39;&lt;/span> &lt;span style="color:#a6e22e">stp=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;on&amp;#39;&lt;/span> &lt;span style="color:#a6e22e">delay=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;0&amp;#39;&lt;/span>&lt;span style="color:#f92672">/&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">&amp;lt;mac&lt;/span> &lt;span style="color:#a6e22e">address=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;af:af:13:ed:c6:41&amp;#39;&lt;/span>&lt;span style="color:#f92672">/&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">&amp;lt;ip&lt;/span> &lt;span style="color:#a6e22e">address=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;10.10.1.42&amp;#39;&lt;/span> &lt;span style="color:#a6e22e">netmask=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;255.255.255.0&amp;#39;&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">&amp;lt;dhcp&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">&amp;lt;range&lt;/span> &lt;span style="color:#a6e22e">start=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;10.10.1.100&amp;#39;&lt;/span> &lt;span style="color:#a6e22e">end=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;10.10.1.150&amp;#39;&lt;/span>&lt;span style="color:#f92672">/&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">&amp;lt;/dhcp&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">&amp;lt;/ip&amp;gt;&lt;/span>
-&lt;span style="color:#f92672">&amp;lt;/network&amp;gt;&lt;/span>
-&lt;/code>&lt;/pre>&lt;/div>&lt;p>It&amp;rsquo;s quite similar except I made a few adoptions:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-xml" data-lang="xml">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">&amp;lt;network&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;lt;name&amp;gt;&lt;/span>containers&lt;span style="color:#f92672">&amp;lt;/name&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;lt;uuid&amp;gt;&lt;/span>929b7b7d-bd82-452d-96b7-12f0cf1a4b17&lt;span style="color:#f92672">&amp;lt;/uuid&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;lt;bridge&lt;/span> &lt;span style="color:#a6e22e">name=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;conbr0&amp;#39;&lt;/span> &lt;span style="color:#a6e22e">stp=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;on&amp;#39;&lt;/span> &lt;span style="color:#a6e22e">delay=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;0&amp;#39;&lt;/span>&lt;span style="color:#f92672">/&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;lt;mac&lt;/span> &lt;span style="color:#a6e22e">address=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;af:af:13:ed:c6:41&amp;#39;&lt;/span>&lt;span style="color:#f92672">/&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;lt;ip&lt;/span> &lt;span style="color:#a6e22e">address=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;10.10.1.42&amp;#39;&lt;/span> &lt;span style="color:#a6e22e">netmask=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;255.255.255.0&amp;#39;&lt;/span>&lt;span style="color:#f92672">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;lt;dhcp&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;lt;range&lt;/span> &lt;span style="color:#a6e22e">start=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;10.10.1.100&amp;#39;&lt;/span> &lt;span style="color:#a6e22e">end=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;10.10.1.150&amp;#39;&lt;/span>&lt;span style="color:#f92672">/&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;lt;/dhcp&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;lt;/ip&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">&amp;lt;/network&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>It&amp;rsquo;s quite similar except I made a few adoptions:&lt;/p>
 &lt;ul>
 &lt;li>remove the &lt;code>&amp;lt;forward/&amp;gt;&lt;/code> block&lt;/li>
 &lt;li>change the &lt;code>&amp;lt;name/&amp;gt;&lt;/code> and the &lt;code>&amp;lt;uuid/&amp;gt;&lt;/code> (with the help of &lt;code>uuidgen&lt;/code>)&lt;/li>
@@ -100,18 +100,21 @@ The following snippet contains the definition I&amp;rsquo;ll use:&lt;/p>
 &lt;p>You may use any private network - as far as I can tell it shouldn&amp;rsquo;t matter if you&amp;rsquo;re using a class B, C or D private network as long as you don&amp;rsquo;t have any conflicts with your LAN or any other virtual interfaces of your environment.&lt;/p>
 &lt;p>When done safe your network definition as &lt;code>.xml&lt;/code> file.
 To import the configuration you can use &lt;code>virsh net-define&lt;/code> like in the following snippet (assuming the network definition is in &lt;code>containers.xml&lt;/code>):&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ virsh net-define containers.xml
-&amp;gt; Network containers defined from containers.xml
-&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;em>Note: this only works because the XML already contains an &lt;code>&amp;lt;uuid/&amp;gt;&lt;/code>. Otherwise you&amp;rsquo;d have to use &lt;code>virsh net-create&lt;/code> and a few more extra steps to make the network actually persistent.&lt;/em>&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>$ virsh net-define containers.xml
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&amp;gt; Network containers defined from containers.xml
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;em>Note: this only works because the XML already contains an &lt;code>&amp;lt;uuid/&amp;gt;&lt;/code>. Otherwise you&amp;rsquo;d have to use &lt;code>virsh net-create&lt;/code> and a few more extra steps to make the network actually persistent.&lt;/em>&lt;/p>
 &lt;p>If you now check with &lt;code>virsh net-list&lt;/code> you&amp;rsquo;d be disappointed because there&amp;rsquo;s no network!
 Checking again with &lt;code>virsh net-list --all&lt;/code> explains why our &lt;code>containers&lt;/code> network wasn&amp;rsquo;t in the output previously because it is by default &lt;em>inactive&lt;/em>.
 To activate it we&amp;rsquo;ve to start it like so:&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ virsh net-start containers
-&amp;gt; Network containers started
-&lt;/code>&lt;/pre>&lt;/div>&lt;p>If you don&amp;rsquo;t mind the extra adapter and wish to use the network frequently in the future you might consider to autostart it:&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">$ virsh net-autostart containers
-&amp;gt; Network containers marked as autostarted
-&lt;/code>&lt;/pre>&lt;/div>&lt;p>With our custom Libvirt network in place we&amp;rsquo;re good to go to configure Podman.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>$ virsh net-start containers
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&amp;gt; Network containers started
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>If you don&amp;rsquo;t mind the extra adapter and wish to use the network frequently in the future you might consider to autostart it:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>$ virsh net-autostart containers
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&amp;gt; Network containers marked as autostarted
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>With our custom Libvirt network in place we&amp;rsquo;re good to go to configure Podman.&lt;/p>
 &lt;h2 id="part-2-podman-cni-network" >Part 2: Podman CNI network
 &lt;span>
 &lt;a href="#part-2-podman-cni-network">
@@ -126,70 +129,70 @@ You should find the default network as &lt;code>87-podman.conflist&lt;/code> in 
 We will define our own &lt;code>libvirt&lt;/code> network to join Podman containers into the previously created Libvirt network.
 You can either use &lt;code>podman network create&lt;/code> to create the network (at least more or less) or you can copy for example the default network and make some adjustments.&lt;/p>
 &lt;p>To create the new network from the CLI you can use the following command:&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">podman network create &lt;span style="color:#ae81ff">\
-&lt;/span>&lt;span style="color:#ae81ff">&lt;/span> --disable-dns &lt;span style="color:#ae81ff">\
-&lt;/span>&lt;span style="color:#ae81ff">&lt;/span> --internal &lt;span style="color:#ae81ff">\
-&lt;/span>&lt;span style="color:#ae81ff">&lt;/span> --gateway 10.10.2.37 &lt;span style="color:#ae81ff">\
-&lt;/span>&lt;span style="color:#ae81ff">&lt;/span> --ip-range 10.10.2.160/29 &lt;span style="color:#ae81ff">\
-&lt;/span>&lt;span style="color:#ae81ff">&lt;/span> --subnet 10.10.2.0/24 &lt;span style="color:#ae81ff">\
-&lt;/span>&lt;span style="color:#ae81ff">&lt;/span> libvirt
-&lt;/code>&lt;/pre>&lt;/div>&lt;p>Note that I used a different IP range as in the Libvirt network! Otherwise Podman will complain that the IP range is already in use at an adapter.
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>podman network create &lt;span style="color:#ae81ff">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ae81ff">&lt;/span> --disable-dns &lt;span style="color:#ae81ff">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ae81ff">&lt;/span> --internal &lt;span style="color:#ae81ff">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ae81ff">&lt;/span> --gateway 10.10.2.37 &lt;span style="color:#ae81ff">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ae81ff">&lt;/span> --ip-range 10.10.2.160/29 &lt;span style="color:#ae81ff">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ae81ff">&lt;/span> --subnet 10.10.2.0/24 &lt;span style="color:#ae81ff">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ae81ff">&lt;/span> libvirt
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Note that I used a different IP range as in the Libvirt network! Otherwise Podman will complain that the IP range is already in use at an adapter.
 You can use this command to create the required file in &lt;code>/etc/cni/net.d/&lt;/code> but you&amp;rsquo;ve to update the &lt;code>ranges&lt;/code> accordingly before creating a container in the network.&lt;/p>
 &lt;p>Because we&amp;rsquo;ve to edit the &lt;code>.conflist&lt;/code> either way copy the default one is also fine.&lt;/p>
 &lt;p>The &lt;code>.conflist&lt;/code> I&amp;rsquo;m using looks like this:&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-json" data-lang="json">{
-&lt;span style="color:#f92672">&amp;#34;cniVersion&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;0.4.0&amp;#34;&lt;/span>,
-&lt;span style="color:#f92672">&amp;#34;name&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;libvirt&amp;#34;&lt;/span>,
-&lt;span style="color:#f92672">&amp;#34;plugins&amp;#34;&lt;/span>: [
-{
-&lt;span style="color:#f92672">&amp;#34;type&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;bridge&amp;#34;&lt;/span>,
-&lt;span style="color:#f92672">&amp;#34;bridge&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;conbr0&amp;#34;&lt;/span>,
-&lt;span style="color:#f92672">&amp;#34;isGateway&amp;#34;&lt;/span>: &lt;span style="color:#66d9ef">false&lt;/span>,
-&lt;span style="color:#f92672">&amp;#34;hairpinMode&amp;#34;&lt;/span>: &lt;span style="color:#66d9ef">true&lt;/span>,
-&lt;span style="color:#f92672">&amp;#34;ipam&amp;#34;&lt;/span>: {
-&lt;span style="color:#f92672">&amp;#34;type&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;host-local&amp;#34;&lt;/span>,
-&lt;span style="color:#f92672">&amp;#34;routes&amp;#34;&lt;/span>: [
-{
-&lt;span style="color:#f92672">&amp;#34;dst&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;0.0.0.0/0&amp;#34;&lt;/span>
-}
-],
-&lt;span style="color:#f92672">&amp;#34;ranges&amp;#34;&lt;/span>: [
-[
-{
-&lt;span style="color:#f92672">&amp;#34;subnet&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;10.10.1.0/24&amp;#34;&lt;/span>,
-&lt;span style="color:#f92672">&amp;#34;rangeStart&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;10.10.1.151&amp;#34;&lt;/span>,
-&lt;span style="color:#f92672">&amp;#34;rangeEnd&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;10.10.1.160&amp;#34;&lt;/span>,
-&lt;span style="color:#f92672">&amp;#34;gateway&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;10.10.1.42&amp;#34;&lt;/span>
-}
-]
-]
-}
-},
-{
-&lt;span style="color:#f92672">&amp;#34;type&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;portmap&amp;#34;&lt;/span>,
-&lt;span style="color:#f92672">&amp;#34;capabilities&amp;#34;&lt;/span>: {
-&lt;span style="color:#f92672">&amp;#34;portMappings&amp;#34;&lt;/span>: &lt;span style="color:#66d9ef">true&lt;/span>
-}
-},
-{
-&lt;span style="color:#f92672">&amp;#34;type&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;firewall&amp;#34;&lt;/span>,
-&lt;span style="color:#f92672">&amp;#34;backend&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;&amp;#34;&lt;/span>
-},
-{
-&lt;span style="color:#f92672">&amp;#34;type&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;tuning&amp;#34;&lt;/span>
-}
-]
-}
-&lt;/code>&lt;/pre>&lt;/div>&lt;p>Interestingly the &lt;code>rangeStart&lt;/code> and &lt;code>rangeEnd&lt;/code> are actually IP addresses and not tight to some IP networks but unfortunately there&amp;rsquo;s no equivalent for &lt;code>podman network create&lt;/code> hence I update both to a range after the DHCP range of the Libvirt network to make sure that no duplicate IPs are assigned.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-json" data-lang="json">&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;cniVersion&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;0.4.0&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;name&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;libvirt&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;plugins&amp;#34;&lt;/span>: [
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;type&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;bridge&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;bridge&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;conbr0&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;isGateway&amp;#34;&lt;/span>: &lt;span style="color:#66d9ef">false&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;hairpinMode&amp;#34;&lt;/span>: &lt;span style="color:#66d9ef">true&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;ipam&amp;#34;&lt;/span>: {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;type&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;host-local&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;routes&amp;#34;&lt;/span>: [
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;dst&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;0.0.0.0/0&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ],
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;ranges&amp;#34;&lt;/span>: [
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> [
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;subnet&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;10.10.1.0/24&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;rangeStart&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;10.10.1.151&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;rangeEnd&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;10.10.1.160&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;gateway&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;10.10.1.42&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> },
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;type&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;portmap&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;capabilities&amp;#34;&lt;/span>: {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;portMappings&amp;#34;&lt;/span>: &lt;span style="color:#66d9ef">true&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> },
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;type&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;firewall&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;backend&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> },
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;type&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;tuning&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Interestingly the &lt;code>rangeStart&lt;/code> and &lt;code>rangeEnd&lt;/code> are actually IP addresses and not tight to some IP networks but unfortunately there&amp;rsquo;s no equivalent for &lt;code>podman network create&lt;/code> hence I update both to a range after the DHCP range of the Libvirt network to make sure that no duplicate IPs are assigned.&lt;/p>
 &lt;p>I tend to declare the network as &lt;code>host-local&lt;/code> but this shouldn&amp;rsquo;t be critical.
 The &lt;strong>most important&lt;/strong> part is to update the &lt;code>bridge&lt;/code> to the same interface like in the Libvirt network definition (in my case &lt;code>conbr0&lt;/code>).&lt;/p>
 &lt;p>After this we&amp;rsquo;re ready to go and you can for instance start a Nginx container in the &lt;code>libvirt&lt;/code> network and you should be able to reach it from a VM in the Libvirt network:&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">podman run &lt;span style="color:#ae81ff">\
-&lt;/span>&lt;span style="color:#ae81ff">&lt;/span> --rm &lt;span style="color:#ae81ff">\
-&lt;/span>&lt;span style="color:#ae81ff">&lt;/span> -d &lt;span style="color:#ae81ff">\
-&lt;/span>&lt;span style="color:#ae81ff">&lt;/span> --name nginx &lt;span style="color:#ae81ff">\
-&lt;/span>&lt;span style="color:#ae81ff">&lt;/span> --network libvirt &lt;span style="color:#ae81ff">\
-&lt;/span>&lt;span style="color:#ae81ff">&lt;/span> --ip 10.10.1.151 &lt;span style="color:#ae81ff">\
-&lt;/span>&lt;span style="color:#ae81ff">&lt;/span> docker.io/nginx:alpine
-&lt;/code>&lt;/pre>&lt;/div>&lt;p>A nice option for &lt;code>podman run&lt;/code> is &lt;code>--ip&lt;/code>.
-You&amp;rsquo;ve to choose an IP from the previously configured &lt;code>range&lt;/code> but you can skip the &lt;code>podman inspect&lt;/code> or &lt;code>ip a&lt;/code> to get the container IP and the container will have the IP every time you start it, if you like 😉 and speaking of &amp;lsquo;nice&amp;rsquo; &lt;code>podman run&lt;/code> options: you do know &lt;code>--replace&lt;/code>, don&amp;rsquo;t you?&lt;/p></description></item></channel></rss>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>podman run &lt;span style="color:#ae81ff">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ae81ff">&lt;/span> --rm &lt;span style="color:#ae81ff">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ae81ff">&lt;/span> -d &lt;span style="color:#ae81ff">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ae81ff">&lt;/span> --name nginx &lt;span style="color:#ae81ff">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ae81ff">&lt;/span> --network libvirt &lt;span style="color:#ae81ff">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ae81ff">&lt;/span> --ip 10.10.1.151 &lt;span style="color:#ae81ff">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ae81ff">&lt;/span> docker.io/nginx:alpine
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>A nice option for &lt;code>podman run&lt;/code> is &lt;code>--ip&lt;/code>.
+You&amp;rsquo;ve to choose an IP from the previously configured &lt;code>range&lt;/code> but you can skip the &lt;code>podman inspect&lt;/code> or &lt;code>ip a&lt;/code> to get the container IP and the container will have the IP every time you start it, if you like 😉 and speaking of &amp;rsquo;nice&amp;rsquo; &lt;code>podman run&lt;/code> options: you do know &lt;code>--replace&lt;/code>, don&amp;rsquo;t you?&lt;/p></description></item></channel></rss>
