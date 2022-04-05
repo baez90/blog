@@ -1,0 +1,23 @@
+{
+    "name": "libvirt",
+    "id": "0489e6e643b97003c47b27a9ce0a6f6a8dce7d5f08329603e79a0ba48ad5285f",
+    "driver": "bridge",
+    "network_interface": "conbr0",
+    "created": "2022-04-05T09:18:48.198960971+01:00",
+    "subnets": [
+         {
+              "subnet": "10.10.1.0/24",
+              "gateway": "10.10.1.42",
+              "lease_range": {
+                   "start_ip": "10.10.1.1",
+                   "end_ip": "10.10.1.10"
+              }
+         }
+    ],
+    "ipv6_enabled": false,
+    "internal": false,
+    "dns_enabled": false,
+    "ipam_options": {
+         "driver": "host-local"
+    }
+}

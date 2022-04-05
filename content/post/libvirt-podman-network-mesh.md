@@ -9,9 +9,9 @@ tags = [
 ]
 +++
 
-_Disclaimer: I tested all this with Podman 3.x even though Podman 4.0 is already announced but the CNI driver is still available with Podman 4.0 and as soon as I get my hands on 4.0 I'll give **Netavark** a try, too!_
+_Disclaimer: I tested all this with Podman 3.x even though Podman 4.0 is already announced but the {{<abbr short="CNI" full="Container Network Interface" >}} driver is still available with Podman 4.0 and as soon as I get my hands on 4.0 I'll give **Netavark** a try, too!_
 
-When playing around with containers and VMs one might ask if it's possible to bring VMs and containers into a common network segment.
+When playing around with containers and {{<abbr short="VM" full="Virtual Machine" >}}s one might ask if it's possible to bring VMs and containers into a common network segment.
 I see 'why the hell would I need a VM anyway when already having containers' or something similar I almost see on your face :stuck_out_tongue_winking_eye:
 
 Well 1st of all, not everything can be solved with containers.
@@ -19,7 +19,7 @@ For instance windows applications can be run in Windows containers but I'm not a
 
 But also in pure Linux environments there are cases where a VM is probably a better fit for the problem.
 As you might know I'm a bit of network :nerd: and I love playing around with 'weird' stuff almost no one else does even think about if not forced to.
-So if you try to implement for example your own DHCP server you might want to isolate your experiments (especially at the beginning) to avoid discussion about "why's Netflix on the TV not working?!" :smile: or also if you try to implement your own 'firewall' with DNAT support (stay tuned - post's following!).
+So if you try to implement for example your own DHCP server you might want to isolate your experiments (especially at the beginning) to avoid discussion about "why's Netflix on the TV not working?!" :smile: or also if you try to implement your own 'firewall' with {{<abbr short="DNAT" full="Destination network address translation" >}} support (stay tuned - post's following!).
 
 ## Part 1: Libvirt preparation
 
