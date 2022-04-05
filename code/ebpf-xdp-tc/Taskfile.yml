@@ -1,0 +1,58 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  default:
+
+  build-ebpf:
+    cmds:
+      - mkdir -p ebpf/bin
+      - |
+        clang \
+        -Wno-unused-value \
+        -Wno-pointer-sign \
+        -Wno-compare-distinct-pointer-types \
+        -Wunused \
+        -Wall \
+        -fno-stack-protector \
+        -fno-ident \
+        -g \
+        -O2 -emit-llvm \
+        ebpf/main.c \
+        -c -o - | llc -march=bpf -mcpu=probe -filetype=obj -o ebpf/bin/probe.o
+
+  build-bin:
+    deps:
+      - build-ebpf
+    env:
+      GOOS: linux
+      GOARCH: amd64
+    cmds:
+      - mkdir -p out/
+      - go build -o out/ebpf-xdp-tc -trimpath -a -installsuffix=cgo  -ldflags "-w -s -linkmode external -extldflags -static" ./
+
+  build-docker:
+    deps:
+      - build-bin
+    cmds:
+      - buildah bud -t ebpf-xdp-tc .
+
+  run-in-container:
+    deps:
+      - build-docker
+    cmds:
+      - |
+        podman run \
+          --rm \
+          -ti \
+          -v /sys:/sys:ro \
+          --security-opt=seccomp=unconfined \
+          --network=libvirt \
+          --ip "10.10.1.1" \
+          --name ebpf-xdp-tc \
+          --cap-add=CAP_SYS_ADMIN \
+          --cap-add=CAP_NET_RAW \
+          --cap-add=CAP_NET_BIND_SERVICE \
+          --cap-add=CAP_NET_ADMIN \
+          ebpf-xdp-tc
