@@ -24,14 +24,104 @@ Originally I used GitPitch but then the author decided to go with a commercial l
 The commercial license made sense when I was working at the university but after that it didn&amp;rsquo;t really make sense any more.
 So I decided to replace it with a small custom CLI rendering the markdown into a static HTML file and serving it as a local web server (basically).&lt;/p>
 &lt;p>Later on I refined it more and more.
-Currently I&amp;rsquo;m working on a rewrite which adds e.g. 1st class support for &lt;a href="https://mermaid-js.github.io">mermaid-js&lt;/a> diagrams in slides.&lt;/p></description></item><item><title>Libvirt &amp; Podman: network 'mesh'</title><link>https://www.1533b4dc0.de/post/libvirt-podman-network-mesh/</link><pubDate>Thu, 24 Feb 2022 00:00:00 +0000</pubDate><guid>https://www.1533b4dc0.de/post/libvirt-podman-network-mesh/</guid><description>&lt;p>&lt;em>Disclaimer: I tested all this with Podman 3.x even though Podman 4.0 is already announced but the CNI driver is still available with Podman 4.0 and as soon as I get my hands on 4.0 I&amp;rsquo;ll give &lt;strong>Netavark&lt;/strong> a try, too!&lt;/em>&lt;/p>
-&lt;p>When playing around with containers and VMs one might ask if it&amp;rsquo;s possible to bring VMs and containers into a common network segment.
+Currently I&amp;rsquo;m working on a rewrite which adds e.g. 1st class support for &lt;a href="https://mermaid-js.github.io">mermaid-js&lt;/a> diagrams in slides.&lt;/p></description></item><item><title>Libvirt &amp; Podman: follow up for Podman 4.0 and netavark</title><link>https://www.1533b4dc0.de/post/libvirt-podman-netavark-follow-up/</link><pubDate>Thu, 24 Feb 2022 00:00:00 +0000</pubDate><guid>https://www.1533b4dc0.de/post/libvirt-podman-netavark-follow-up/</guid><description>&lt;p>This is a follow up post to &lt;a href="https://www.1533b4dc0.de/post/libvirt-podman-network-mesh/">&amp;ldquo;Joining libvirt &lt;abbr title="Virtual Machine">VM&lt;/abbr>s and Podman container in a common network&amp;rdquo;&lt;/a>.
+Therefore I won&amp;rsquo;t cover all the basics again and how to configure libvirt because nothing&amp;rsquo;s changed on that side.&lt;/p>
+&lt;h2 id="podman-40" >Podman 4.0
+&lt;span>
+&lt;a href="#podman-40">
+&lt;svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg">&lt;path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>&lt;path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>&lt;/svg>
+&lt;/a>
+&lt;/span>
+&lt;/h2>&lt;p>Podman 4.0 comes with a completely new network stack replacing the previous &lt;a href="https://www.cni.dev/">&lt;abbr title="Container Network Interface">CNI&lt;/abbr>&lt;/a> stack:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://github.com/containers/netavark">Netavark&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://github.com/containers/aardvark-dns">Aardvark&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>There are &lt;a href="https://www.redhat.com/sysadmin/podman-new-network-stack">great resources&lt;/a> that explain the backgrounds of both tools and I don&amp;rsquo;t think I could describe it better than the folks implementing it 😄 so if you&amp;rsquo;re interested have a look at the aforementioned article or the &lt;a href="https://podman.io/releases/2022/02/22/podman-release-v4.0.0.html">release post&lt;/a>.&lt;/p>
+&lt;h2 id="netavark-and-libvirt" >Netavark and libvirt
+&lt;span>
+&lt;a href="#netavark-and-libvirt">
+&lt;svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg">&lt;path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>&lt;path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>&lt;/svg>
+&lt;/a>
+&lt;/span>
+&lt;/h2>&lt;p>After reading the announcement I was most curious if I would be able to configure an equivalent setup for Netavark like I described it with Podman 3.x and CNI.&lt;/p>
+&lt;p>&lt;strong>Short answer:&lt;/strong> yes, it is possible! 🎉&lt;/p>
+&lt;p>&lt;em>&amp;ldquo;But how?!&amp;rdquo;&lt;/em> do you ask?
+Well it&amp;rsquo;s pretty much equivalent to the previous solution: you need to create a new Podman network I once more named it &lt;em>&amp;rsquo;libvirt&amp;rsquo;&lt;/em>.
+To get an idea how the config should look like and where it should placed.
+I reused the CLI call from my previous article:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>podman network create &lt;span style="color:#ae81ff">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ae81ff">&lt;/span> --disable-dns &lt;span style="color:#ae81ff">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ae81ff">&lt;/span> --internal &lt;span style="color:#ae81ff">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ae81ff">&lt;/span> --gateway 10.10.2.37 &lt;span style="color:#ae81ff">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ae81ff">&lt;/span> --ip-range 10.10.2.160/29 &lt;span style="color:#ae81ff">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ae81ff">&lt;/span> --subnet 10.10.2.0/24 &lt;span style="color:#ae81ff">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ae81ff">&lt;/span> libvirt
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>The configuration files are now obviously resided in &lt;code>/etc/containers/networks/&lt;/code> and my (already modified) &lt;code>libvirt.json&lt;/code> now looks like so:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-json" data-lang="json">&lt;span style="display:flex;">&lt;span>{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;name&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;libvirt&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;id&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;0489e6e643b97003c47b27a9ce0a6f6a8dce7d5f08329603e79a0ba48ad5285f&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;driver&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;bridge&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;network_interface&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;conbr0&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;created&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;2022-04-05T09:18:48.198960971+01:00&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;subnets&amp;#34;&lt;/span>: [
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;subnet&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;10.10.1.0/24&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;gateway&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;10.10.1.42&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;lease_range&amp;#34;&lt;/span>: {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;start_ip&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;10.10.1.1&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;end_ip&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;10.10.1.10&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ],
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;ipv6_enabled&amp;#34;&lt;/span>: &lt;span style="color:#66d9ef">false&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;internal&amp;#34;&lt;/span>: &lt;span style="color:#66d9ef">false&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;dns_enabled&amp;#34;&lt;/span>: &lt;span style="color:#66d9ef">false&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;ipam_options&amp;#34;&lt;/span>: {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">&amp;#34;driver&amp;#34;&lt;/span>: &lt;span style="color:#e6db74">&amp;#34;host-local&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;em>Side note: I&amp;rsquo;m really happy they dropped the &lt;code>.conflist&lt;/code> extension because this way most editors offer really helpful syntax highlighting in the first place!&lt;/em>&lt;/p>
+&lt;p>Note that &lt;code>&amp;quot;internal&amp;quot;: false&lt;/code> is mandatory. Otherwise I wasn&amp;rsquo;t able to establish communication between VM and container.
+I also disabled the Aardvark &lt;abbr title="Domain Name System">DNS&lt;/abbr> server and IPv6 support because I don&amp;rsquo;t need it and I also don&amp;rsquo;t expect much benefit of it due to the fact that it can&amp;rsquo;t be aware of the VMs present in the network same as &lt;code>dnsmasq&lt;/code> won&amp;rsquo;t be able to resolve containers in the libvirt network.&lt;/p>
+&lt;p>Having this in place I was again able to reuse the CLI command from my previous article:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>podman run &lt;span style="color:#ae81ff">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ae81ff">&lt;/span> --rm &lt;span style="color:#ae81ff">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ae81ff">&lt;/span> -d &lt;span style="color:#ae81ff">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ae81ff">&lt;/span> --name nginx &lt;span style="color:#ae81ff">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ae81ff">&lt;/span> --network libvirt &lt;span style="color:#ae81ff">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ae81ff">&lt;/span> --ip 10.10.1.151 &lt;span style="color:#ae81ff">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#ae81ff">&lt;/span> docker.io/nginx:alpine
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>to create a Nginx container that can be reached from a VM.&lt;/p>
+&lt;h2 id="troubleshooting" >Troubleshooting
+&lt;span>
+&lt;a href="#troubleshooting">
+&lt;svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg">&lt;path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>&lt;path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>&lt;/svg>
+&lt;/a>
+&lt;/span>
+&lt;/h2>&lt;p>Sometimes the communication between container and VM fails - don&amp;rsquo;t know if I restarted the libvirt network previously or somehow fucked up the container network configuration but a:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>podman network reload &amp;lt;container ID/container name&amp;gt;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>often resolved the problem.&lt;/p>
+&lt;h2 id="final-thoughts" >Final thoughts
+&lt;span>
+&lt;a href="#final-thoughts">
+&lt;svg viewBox="0 0 28 23" height="100%" width="19" xmlns="http://www.w3.org/2000/svg">&lt;path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>&lt;path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" fill="none" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>&lt;/svg>
+&lt;/a>
+&lt;/span>
+&lt;/h2>&lt;p>I haven&amp;rsquo;t used &lt;em>Netavark&lt;/em> and &lt;em>Aardvark&lt;/em> a lot, yet.
+But I already noticed a few &lt;strong>really awesome&lt;/strong> things:&lt;/p>
+&lt;ul>
+&lt;li>the &lt;code>docker-compose&lt;/code> support seems to be a lot better now because containers are actually able to talk to each other by &lt;em>service name&lt;/em>, something I wasn&amp;rsquo;t able to configure properly in Podman 3.x - at least not rootless.&lt;/li>
+&lt;li>with &lt;em>Netavark&lt;/em> all the Podman configuration is now unified within &lt;code>/etc/containers&lt;/code> or &lt;code>$HOME/.config/containers&lt;/code> respectively&lt;/li>
+&lt;li>the new configuration format is a little bit cleaner the the previous one due to the fact that &lt;em>Netavark&lt;/em> does not support plugins and with a &lt;code>.json&lt;/code> extension editors do help a lot more without requiring extra &amp;ldquo;configuration&amp;rdquo;&lt;/li>
+&lt;/ul></description></item><item><title>Libvirt &amp; Podman: network 'mesh'</title><link>https://www.1533b4dc0.de/post/libvirt-podman-network-mesh/</link><pubDate>Thu, 24 Feb 2022 00:00:00 +0000</pubDate><guid>https://www.1533b4dc0.de/post/libvirt-podman-network-mesh/</guid><description>&lt;p>&lt;em>Disclaimer: I tested all this with Podman 3.x even though Podman 4.0 is already announced but the &lt;abbr title="Container Network Interface">CNI&lt;/abbr> driver is still available with Podman 4.0 and as soon as I get my hands on 4.0 I&amp;rsquo;ll give &lt;strong>Netavark&lt;/strong> a try, too!&lt;/em>&lt;/p>
+&lt;p>When playing around with containers and &lt;abbr title="Virtual Machine">VM&lt;/abbr>s one might ask if it&amp;rsquo;s possible to bring VMs and containers into a common network segment.
 I see &amp;lsquo;why the hell would I need a VM anyway when already having containers&amp;rsquo; or something similar I almost see on your face 😜&lt;/p>
 &lt;p>Well 1st of all, not everything can be solved with containers.
 For instance windows applications can be run in Windows containers but I&amp;rsquo;m not aware of how to run a Windows container on my Linux desktop.&lt;/p>
 &lt;p>But also in pure Linux environments there are cases where a VM is probably a better fit for the problem.
 As you might know I&amp;rsquo;m a bit of network 🤓 and I love playing around with &amp;lsquo;weird&amp;rsquo; stuff almost no one else does even think about if not forced to.
-So if you try to implement for example your own DHCP server you might want to isolate your experiments (especially at the beginning) to avoid discussion about &amp;ldquo;why&amp;rsquo;s Netflix on the TV not working?!&amp;rdquo; 😄 or also if you try to implement your own &amp;lsquo;firewall&amp;rsquo; with DNAT support (stay tuned - post&amp;rsquo;s following!).&lt;/p>
+So if you try to implement for example your own DHCP server you might want to isolate your experiments (especially at the beginning) to avoid discussion about &amp;ldquo;why&amp;rsquo;s Netflix on the TV not working?!&amp;rdquo; 😄 or also if you try to implement your own &amp;lsquo;firewall&amp;rsquo; with &lt;abbr title="Destination network address translation">DNAT&lt;/abbr> support (stay tuned - post&amp;rsquo;s following!).&lt;/p>
 &lt;h2 id="part-1-libvirt-preparation" >Part 1: Libvirt preparation
 &lt;span>
 &lt;a href="#part-1-libvirt-preparation">
